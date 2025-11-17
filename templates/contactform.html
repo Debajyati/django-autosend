@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block title %}Contact Us{% endblock title %}
+
+{% block content %}
+
+<div class="w-full flex-1 px-4 mx-auto max-w-2xl py-8">
+  <!-- Page Header -->
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-blue-600 mb-2">Contact Us</h1>
+    <p class="text-gray-400">We'd love to hear from you. Send us a message!</p>
+  </div>
+
+  <!-- Messages/Alerts -->
+  {% if messages %}
+    <div class="mb-6 space-y-3">
+      {% for message in messages %}
+        <div class="p-4 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-500/10 text-green-400 border border-green-500/20{% elif message.tags == 'error' %}bg-red-500/10 text-red-400 border border-red-500/20{% elif message.tags == 'warning' %}bg-yellow-500/10 text-yellow-400 border border-yellow-500/20{% else %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% endif %}" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Contact Form -->
+  <form method="post" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-gray-700" id="contact-form">
+    {% csrf_token %}
+
+    <!-- Name Field -->
+    <div class="mb-6">
+      <label for="{{ form.name.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
+        {{ form.name.label }}
+      </label>
+      <input 
+        type="text" 
+        name="{{ form.name.name }}" 
+        id="{{ form.name.id_for_label }}"
+        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        placeholder="Your full name"
+        {% if form.name.value %}value="{{ form.name.value }}"{% endif %}
+        required
+      >
+      {% if form.name.errors %}
+        <div class="mt-2 text-sm text-red-400">
+          {{ form.name.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Email Field -->
+    <div class="mb-6">
+      <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
+        {{ form.email.label }}
+      </label>
+      <input 
+        type="email" 
+        name="{{ form.email.name }}" 
+        id="{{ form.email.id_for_label }}"
+        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        placeholder="your.email@example.com"
+        {% if form.email.value %}value="{{ form.email.value }}"{% endif %}
+        required
+      >
+      {% if form.email.errors %}
+        <div class="mt-2 text-sm text-red-400">
+          {{ form.email.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Message Field -->
+    <div class="mb-6">
+      <label for="{{ form.message.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
+        {{ form.message.label }}
+      </label>
+      <textarea 
+        name="{{ form.message.name }}" 
+        id="{{ form.message.id_for_label }}"
+        rows="6"
+        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+        placeholder="Tell us what's on your mind..."
+        required
+      >{% if form.message.value %}{{ form.message.value }}{% endif %}</textarea>
+      {% if form.message.errors %}
+        <div class="mt-2 text-sm text-red-400">
+          {{ form.message.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="flex justify-center">
+      <button 
+        type="submit" 
+        class="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+      >
+        Send Message
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
