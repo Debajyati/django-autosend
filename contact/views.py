@@ -36,6 +36,7 @@ def contact_view(request):
                 <p><strong>Message:</strong></p>
                 <p>{message}</p>
                 """,
+                "text": f"New Message from {name}\n\nEmail: {email}\n\nMessage:\n{message}",
                 "replyTo": {"email": email, "name": name},
             }
 
