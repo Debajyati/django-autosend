@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 @shared_task
 def send_confirmation_email(name, email, from_name, from_email, message) -> None:
     email_content = _generate_confirmation_email_html(name, message)
+    email_text_content = _generate_confirmation_email_text(name, message)
     payload = {
         "to": {
             "email": email,
@@ -20,6 +21,7 @@ def send_confirmation_email(name, email, from_name, from_email, message) -> None
         },
         "subject": "Thank you for contacting us",
         "html": email_content,
+        "text": email_text_content,
     }
     success, data = send_email(payload)
     if not success:
@@ -71,6 +73,25 @@ def _generate_confirmation_email_html(name: str, message: str) -> str:
         </body>
         </html>
         """
+
+def _generate_confirmation_email_text(name: str, message: str) -> str:
+    return f"""
+    Hi {name},
+
+    Thank you for reaching out! We've received your message and will get back to you as soon as possible.
+
+    ✓ Your message has been successfully delivered to our site administrator.
+
+    Your Message:
+    --------------------
+    {message}
+    --------------------
+
+    We typically respond within 24-48 hours. In the meantime, feel free to explore our website for more information.
+
+    This is a system generated email.
+    Please do not reply to this email.
+    """
 
 class AutosendErrorResponseData(TypedDict):
     message: str
