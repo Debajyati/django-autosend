@@ -52,7 +52,7 @@ def contact_view(request):
 
             if response.status_code == 200:  # Accepted for delivery
                 messages.success(request, "Your message has been sent successfully!")
-                send_confirmation_email.delay(name,email,settings.FROM_NAME,settings.FROM_EMAIL,message);
+                send_confirmation_email.delay(name,email,settings.FROM_NAME,settings.FROM_EMAIL,message)
                 form = ContactForm()  # Reset the form
                 return redirect("contact")
             else:
