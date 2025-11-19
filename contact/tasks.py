@@ -3,6 +3,7 @@ import logging
 import requests
 from typing import Dict, Optional, Tuple, TypedDict, Union
 from django.conf import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +19,10 @@ def send_confirmation_email(name, email, from_name, from_email, message) -> None
         "from": {
             "email": from_email,
             "name": from_name,
+        },
+        "replyTo": {
+            "email": settings.CONTACT_RECIPIENT_EMAIL,
+            "name": settings.CONTACT_RECIPIENT_NAME,
         },
         "subject": "Thank you for contacting us",
         "html": email_content,
@@ -63,16 +68,19 @@ def _generate_confirmation_email_html(name: str, message: str) -> str:
                 
                 <p style="font-size: 14px; color: black; margin-top: 30px;">
                     We typically respond within 24-48 hours. In the meantime, feel free to explore our website for more information.
+                    If you have any urgent inquiries, please don't hesitate to reach out again.
                 </p>
             </div>
             
             <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-                <p>This is a system generated email.</p>
-                <p>Please do not reply to this email.</p>
+                <p>Although this is a system generated email,</p>
+                <p>If your inquiries are urgent, feel free to hit reply.</p>
+                <p>Our admin will recieve your reply shortly, and get back to you soon.</p>
             </div>
         </body>
         </html>
         """
+
 
 def _generate_confirmation_email_text(name: str, message: str) -> str:
     return f"""
@@ -88,10 +96,13 @@ def _generate_confirmation_email_text(name: str, message: str) -> str:
     --------------------
 
     We typically respond within 24-48 hours. In the meantime, feel free to explore our website for more information.
+    If you have any urgent inquiries, please don't hesitate to reach out again.
 
-    This is a system generated email.
-    Please do not reply to this email.
+    Although this is a system generated email,
+    If your inquiries are urgent, feel free to hit reply.
+    Our admin will recieve your reply shortly, and get back to you soon.
     """
+
 
 class AutosendErrorResponseData(TypedDict):
     message: str
@@ -99,17 +110,19 @@ class AutosendErrorResponseData(TypedDict):
     details: Optional[Dict[str, str]]
     retryAfter: Optional[int]
 
+
 class AutosendResponseData(TypedDict):
     success: bool
     data: Optional[Dict]
     error: Optional[AutosendErrorResponseData]
 
+
 def send_email(payload: Dict) -> Tuple[bool, Union[AutosendResponseData, Dict]]:
     """
-        Send email via Autosend API
+    Send email via Autosend API
 
-        Returns:
-            Tuple of (success: bool, response_data: AutosendResponseData or error dict)
+    Returns:
+        Tuple of (success: bool, response_data: AutosendResponseData or error dict)
     """
     api_url = settings.AUTOSEND_API_URL
     api_key = settings.AUTOSEND_API_KEY
@@ -121,7 +134,7 @@ def send_email(payload: Dict) -> Tuple[bool, Union[AutosendResponseData, Dict]]:
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
-            timeout=10.0
+            timeout=10.0,
         )
 
         response_data: AutosendResponseData = response.json()
@@ -130,16 +143,16 @@ def send_email(payload: Dict) -> Tuple[bool, Union[AutosendResponseData, Dict]]:
             logger.info(f"Email sent successfully. Message: {response_data}")
             return True, response_data
         else:
-            error_msg = response_data.get('error')
+            error_msg = response_data.get("error")
             logger.error(f"Autosend API error: {error_msg}")
             return False, response_data
 
     except requests.exceptions.Timeout:
         logger.error("Autosend API request timed out")
-        return False, {'error': 'Request timeout'}
+        return False, {"error": "Request timeout"}
     except requests.exceptions.RequestException as e:
         logger.error(f"Autosend API request failed: {str(e)}")
-        return False, {'error': str(e)}
+        return False, {"error": str(e)}
     except Exception as e:
         logger.error(f"Unexpected error sending email: {str(e)}")
-        return False, {'error': str(e)}
+        return False, {"error": str(e)}
